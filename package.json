@@ -1,0 +1,17 @@
+{
+  "name": "npm-repo-download",
+  "version": "1.0.0",
+  "description": "A npm downloader with dependencies",
+  "main": "src/index.js",
+  "scripts": {
+    "start" : "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Hasan Genc",
+  "license": "MIT",
+  "dependencies": {
+    "yargs": "^17.7.2",
+    "axios": "^1.6.2"
+  }
+}
