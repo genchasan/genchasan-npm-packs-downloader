@@ -1,14 +1,26 @@
 {
-  "name": "npm-repo-download",
-  "version": "1.0.0",
+  "name": "npm-packs-downloader",
+  "version": "1.0.1",
   "description": "A npm downloader with dependencies",
   "main": "src/index.js",
+  "bin": {
+    "npm-deps-download" : "src/index.js"
+  },
+  "files": [
+    "src/"
+  ],
+  "engines": {
+    "node": ">=10.12.0"
+  },
   "scripts": {
     "start" : "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "Hasan Genc",
+  "author": {
+    "name": "Hasan Genc",
+    "email": "hasangenc@gmail.com"
+  },
   "license": "MIT",
   "dependencies": {
     "yargs": "^17.7.2",

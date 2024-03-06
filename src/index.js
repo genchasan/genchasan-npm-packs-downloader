@@ -1,4 +1,4 @@
-// index.js
+#!/usr/bin/env node
 
 const yargs = require('yargs');
 const { downloadPackageFiles, writePackDependencies, findDependencies } = require('./find-dependencies');
@@ -17,14 +17,14 @@ const listDepsCommand = {
             alias: 'f',
             describe: 'Package *.json dosyası',
             type: 'string',
-            demandOption : true
+            demandOption : false
         });
     },
     handler: (argv) => {
         const name = argv.file;
         // Dosyanın okunacağı dizini belirt
         try {
-            const fileToRead = path.join(currentWorkingDirectory, name);
+            const fileToRead = path.join(currentWorkingDirectory, name === undefined ? "package.json" : name);
 
             logger.info(`${fileToRead}! dosyası üzerindeki bağımlılıklar listelenecek...`);
 
@@ -48,14 +48,14 @@ const downloadPacksCommand = {
             alias: 'f',
             describe: 'Package *.json dosyası',
             type: 'string',
-            demandOption: true
+            demandOption: false
         });
     },
     handler: (argv) => {
         const name = argv.file;
         //path.resolve(name + '');
         // Dosyanın okunacağı dizini belirt
-        const fileToRead = path.join(currentWorkingDirectory, name);
+        const fileToRead = path.join(currentWorkingDirectory, name === undefined ? "package.json" : name);
 
         logger.info(`${name} dosyasındaki paketler ve bağımlılıkları indirilecek...`);
         downloadPackageFiles(fileToRead).then(r => {
@@ -73,14 +73,14 @@ const generatePackListCommand = {
             alias: 'f',
             describe: 'Package *.json dosyası',
             type: 'string',
-            demandOption: true
+            demandOption: false
         });
     },
     handler: (argv) => {
         const name = argv.file;
         path.resolve(name + '');
         // Dosyanın okunacağı dizini belirt
-        const fileToRead = path.join(currentWorkingDirectory, name);
+        const fileToRead = path.join(currentWorkingDirectory, name === undefined ? "package.json" : name);
 
         logger.info(`${name} dosyasındaki paketler ve bağımlılıkları indirilecek...`);
 
