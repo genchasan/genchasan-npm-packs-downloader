@@ -19,17 +19,18 @@ const listDepsCommand = {
                 type: 'string',
                 demandOption : false
             })
-            .option('deepTree', {
+            .option('deepCopy', {
                 alias: 'd',
                 describe: 'Alt bağımlılıkları degerlendir',
                 type: 'boolean',
                 demandOption : false,
+                choices: [ true, false ],
                 default : false
             });
     },
     handler: (argv) => {
         const name = argv.file;
-        const deepTree = argv.deepTree;
+        const deepCopy = argv.deepCopy;
 
         // Dosyanın okunacağı dizini belirt
         try {
@@ -37,7 +38,7 @@ const listDepsCommand = {
 
             logger.info(`${fileToRead}! dosyası üzerindeki bağımlılıklar listelenecek...`);
 
-            findDependencies(fileToRead, deepTree).then((result) => {
+            findDependencies(fileToRead, deepCopy).then((result) => {
                 logger.info(result);
             });
             //logger.info(deps);
@@ -59,23 +60,31 @@ const downloadPacksCommand = {
                 type: 'string',
                 demandOption: false
             })
-            .option('deepTree', {
+            .option('listFile', {
+                alias: 'l',
+                describe: 'Paket listesi dosyasından dowload eder',
+                type: 'string',
+            })
+            .option('deepCopy', {
                 alias: 'd',
                 describe: 'Alt bağımlılıkları degerlendir',
                 type: 'boolean',
                 demandOption : false,
+                choices: [ true, false ],
                 default : false
             });
     },
     handler: (argv) => {
         const name = argv.file;
-        const deepTree = argv.deepTree;
+        const listFile = argv.listFile;
+        const deepCopy = argv.deepCopy;
+
         //path.resolve(name + '');
         // Dosyanın okunacağı dizini belirt
         const fileToRead = path.join(currentWorkingDirectory, name === undefined ? "package.json" : name);
 
         logger.info(`${fileToRead} dosyasındaki paketler ve bağımlılıkları indirilecek...`);
-        downloadPackageFiles(fileToRead, deepTree).then(r => {
+        downloadPackageFiles(fileToRead, deepCopy, listFile).then(r => {
             logger.info("Paketler indirildi")
         });
     },
@@ -92,24 +101,25 @@ const generatePackListCommand = {
                 type: 'string',
                 demandOption: false
             })
-            .option('deepTree', {
+            .option('deepCopy', {
                 alias: 'd',
                 describe: 'Alt bağımlılıkları degerlendir',
                 type: 'boolean',
                 demandOption : false,
+                choices: [ true, false ],
                 default : false
             });
     },
     handler: (argv) => {
         const name = argv.file;
-        const deepTree = argv.deepTree;
+        const deepCopy = argv.deepCopy;
         path.resolve(name + '');
         // Dosyanın okunacağı dizini belirt
         const fileToRead = path.join(currentWorkingDirectory, name === undefined ? "package.json" : name);
 
         logger.info(`${fileToRead} dosyasındaki paketler ve bağımlılıkları dosyaya yazacak...`);
 
-        writePackDependencies(fileToRead, 'paket-listesi.txt', deepTree);
+        writePackDependencies(fileToRead, 'paket-listesi.txt', deepCopy);
     },
 };
 
