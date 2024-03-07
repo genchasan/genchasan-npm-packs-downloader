@@ -1,10 +1,11 @@
 {
   "name": "npm-packs-downloader",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A npm downloader with dependencies",
   "main": "src/index.js",
   "bin": {
-    "npm-deps-download" : "src/index.js"
+    "npm-deps-download" : "src/index.js",
+    "nexus-deps-publish" : "src/publish-nexus-registry.sh"
   },
   "files": [
     "src/"
