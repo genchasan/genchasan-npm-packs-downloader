@@ -14,21 +14,30 @@ const listDepsCommand = {
     describe: 'List dependencies',
     builder: (yargs) => {
         return yargs.option('file', {
-            alias: 'f',
-            describe: 'Package *.json dosyası',
-            type: 'string',
-            demandOption : false
-        });
+                alias: 'f',
+                describe: 'Package *.json dosyası',
+                type: 'string',
+                demandOption : false
+            })
+            .option('deepTree', {
+                alias: 'd',
+                describe: 'Alt bağımlılıkları degerlendir',
+                type: 'boolean',
+                demandOption : false,
+                default : false
+            });
     },
     handler: (argv) => {
         const name = argv.file;
+        const deepTree = argv.deepTree;
+
         // Dosyanın okunacağı dizini belirt
         try {
             const fileToRead = path.join(currentWorkingDirectory, name === undefined ? "package.json" : name);
 
             logger.info(`${fileToRead}! dosyası üzerindeki bağımlılıklar listelenecek...`);
 
-            findDependencies(fileToRead).then((result) => {
+            findDependencies(fileToRead, deepTree).then((result) => {
                 logger.info(result);
             });
             //logger.info(deps);
@@ -45,20 +54,28 @@ const downloadPacksCommand = {
     describe: 'Download packages and its dependencies',
     builder: (yargs) => {
         return yargs.option('file', {
-            alias: 'f',
-            describe: 'Package *.json dosyası',
-            type: 'string',
-            demandOption: false
-        });
+                alias: 'f',
+                describe: 'Package *.json dosyası',
+                type: 'string',
+                demandOption: false
+            })
+            .option('deepTree', {
+                alias: 'd',
+                describe: 'Alt bağımlılıkları degerlendir',
+                type: 'boolean',
+                demandOption : false,
+                default : false
+            });
     },
     handler: (argv) => {
         const name = argv.file;
+        const deepTree = argv.deepTree;
         //path.resolve(name + '');
         // Dosyanın okunacağı dizini belirt
         const fileToRead = path.join(currentWorkingDirectory, name === undefined ? "package.json" : name);
 
-        logger.info(`${name} dosyasındaki paketler ve bağımlılıkları indirilecek...`);
-        downloadPackageFiles(fileToRead).then(r => {
+        logger.info(`${fileToRead} dosyasındaki paketler ve bağımlılıkları indirilecek...`);
+        downloadPackageFiles(fileToRead, deepTree).then(r => {
             logger.info("Paketler indirildi")
         });
     },
@@ -70,21 +87,29 @@ const generatePackListCommand = {
     describe: 'Generate package list file.',
     builder: (yargs) => {
         return yargs.option('file', {
-            alias: 'f',
-            describe: 'Package *.json dosyası',
-            type: 'string',
-            demandOption: false
-        });
+                alias: 'f',
+                describe: 'Package *.json dosyası',
+                type: 'string',
+                demandOption: false
+            })
+            .option('deepTree', {
+                alias: 'd',
+                describe: 'Alt bağımlılıkları degerlendir',
+                type: 'boolean',
+                demandOption : false,
+                default : false
+            });
     },
     handler: (argv) => {
         const name = argv.file;
+        const deepTree = argv.deepTree;
         path.resolve(name + '');
         // Dosyanın okunacağı dizini belirt
         const fileToRead = path.join(currentWorkingDirectory, name === undefined ? "package.json" : name);
 
-        logger.info(`${name} dosyasındaki paketler ve bağımlılıkları indirilecek...`);
+        logger.info(`${fileToRead} dosyasındaki paketler ve bağımlılıkları dosyaya yazacak...`);
 
-        writePackDependencies(fileToRead, 'paket-listesi.txt');
+        writePackDependencies(fileToRead, 'paket-listesi.txt', deepTree);
     },
 };
 

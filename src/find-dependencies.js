@@ -52,8 +52,8 @@ async function findDependencies(fileName='package.json', deepTree = false) {
     }
 }
 
-async function downloadPackageFiles(packFile = 'package.json') {
-    const packs = await findDependencies(packFile);
+async function downloadPackageFiles(packFile = 'package.json', deepTree = false) {
+    const packs = await findDependencies(packFile, deepTree);
 
     if (!fs.existsSync('./modules')) fs.mkdirSync('./modules');
 
@@ -68,8 +68,8 @@ async function downloadPackageFiles(packFile = 'package.json') {
     }
 }
 
-async function writePackDependencies(packFile = 'package.json', fileName = 'paket-listesi.txt') {
-    const packs = await findDependencies(packFile);
+async function writePackDependencies(packFile = 'package.json', fileName = 'paket-listesi.txt', deepTree = false) {
+    const packs = await findDependencies(packFile, deepTree);
 
     if (fs.existsSync(fileName)) {
         fs.rmSync(fileName);
