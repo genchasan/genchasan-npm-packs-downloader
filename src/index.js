@@ -9,15 +9,20 @@ const fs = require('fs');
 const scriptDirectory = __dirname;
 const currentWorkingDirectory = process.cwd();
 
+function isFullPath(filePath) {
+    return path.isAbsolute(filePath);
+}
+
 const listDepsCommand = {
     command: 'list',
     describe: 'List dependencies',
     builder: (yargs) => {
         return yargs.option('file', {
                 alias: 'f',
-                describe: 'Package *.json dosyası',
+                describe: 'Package .json dosyası',
                 type: 'string',
-                demandOption : false
+                demandOption : false,
+                default: 'package.json'
             })
             .option('deepCopy', {
                 alias: 'd',
@@ -34,7 +39,7 @@ const listDepsCommand = {
 
         // Dosyanın okunacağı dizini belirt
         try {
-            const fileToRead = path.join(currentWorkingDirectory, name === undefined ? "package.json" : name);
+            const fileToRead = isFullPath(name) ? path.parse(name) : path.join(currentWorkingDirectory, name);
 
             logger.info(`${fileToRead}! dosyası üzerindeki bağımlılıklar listelenecek...`);
 
@@ -58,7 +63,8 @@ const downloadPacksCommand = {
                 alias: 'f',
                 describe: 'Package *.json dosyası',
                 type: 'string',
-                demandOption: false
+                demandOption: false,
+                default: 'package.json'
             })
             .option('listFile', {
                 alias: 'l',
@@ -79,9 +85,8 @@ const downloadPacksCommand = {
         const listFile = argv.listFile;
         const deepCopy = argv.deepCopy;
 
-        //path.resolve(name + '');
         // Dosyanın okunacağı dizini belirt
-        const fileToRead = path.join(currentWorkingDirectory, name === undefined ? "package.json" : name);
+        const fileToRead = isFullPath(name) ? path.parse(name) : path.join(currentWorkingDirectory, name);
 
         logger.info(`${fileToRead} dosyasındaki paketler ve bağımlılıkları indirilecek...`);
         downloadPackageFiles(fileToRead, deepCopy, listFile).then(r => {
@@ -99,7 +104,8 @@ const generatePackListCommand = {
                 alias: 'f',
                 describe: 'Package *.json dosyası',
                 type: 'string',
-                demandOption: false
+                demandOption: false,
+                default: 'package.json'
             })
             .option('deepCopy', {
                 alias: 'd',
@@ -113,9 +119,9 @@ const generatePackListCommand = {
     handler: (argv) => {
         const name = argv.file;
         const deepCopy = argv.deepCopy;
-        path.resolve(name + '');
+
         // Dosyanın okunacağı dizini belirt
-        const fileToRead = path.join(currentWorkingDirectory, name === undefined ? "package.json" : name);
+        const fileToRead = isFullPath(name) ? path.parse(name) : path.join(currentWorkingDirectory, name);
 
         logger.info(`${fileToRead} dosyasındaki paketler ve bağımlılıkları dosyaya yazacak...`);
 
