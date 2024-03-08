@@ -13,7 +13,7 @@ function getFileName(url) {
     return pathname.substring(pathname.lastIndexOf('/') + 1);
 }
 
-async function findDependencies(fileName='package.json', deepTree = false) {
+async function findDependencies(fileName='package.json', deepTree = false, maxLevel = 2) {
     try {
         if( !fs.existsSync(fileName)) throw new Error(fileName + ' dosyası bulunamadı.');
 
@@ -21,7 +21,7 @@ async function findDependencies(fileName='package.json', deepTree = false) {
 
         let allVersions = [];
         for (const p of paketler) {
-            let versionlar = await getPackageVersions(p.name, p.version, deepTree);
+            let versionlar = await getPackageVersions(p.name, p.version, deepTree, maxLevel);
 
             versionlar.forEach(function (value) {
                 allVersions.push(value);
@@ -75,11 +75,12 @@ function extractDirName(packName) {
     return './';
 }
 
-async function downloadPackageFiles(packFile = 'package.json', deepTree = false, listFile = undefined) {
+async function downloadPackageFiles(packFile = 'package.json', deepTree = false,
+                                    listFile = undefined, maxLevel = 2) {
     let packs;
 
     if (listFile === undefined) {
-        packs = await findDependencies(packFile, deepTree);
+        packs = await findDependencies(packFile, deepTree, maxLevel);
     } else {
         packs = readPackFileList(listFile);
     }
@@ -107,8 +108,9 @@ async function downloadPackageFiles(packFile = 'package.json', deepTree = false,
     }
 }
 
-async function writePackDependencies(packFile = 'package.json', fileName = 'paket-listesi.txt', deepTree = false) {
-    const packs = await findDependencies(packFile, deepTree);
+async function writePackDependencies(packFile = 'package.json', fileName = 'paket-listesi.txt',
+                                     deepTree = false, maxLevel = 2) {
+    const packs = await findDependencies(packFile, deepTree, maxLevel);
 
     if (fs.existsSync(fileName)) {
         fs.rmSync(fileName);
@@ -116,7 +118,7 @@ async function writePackDependencies(packFile = 'package.json', fileName = 'pake
     }
 
     for (const value of packs) {
-        fs.appendFile(fileName, value.name + ', ' + value.version + ', ' + value.url + '\n', 'utf-8', (err) => {
+        fs.appendFile(fileName, value.name + ', ' + value.version + ', ' + value.url + ', ' +  value.level + '\n', 'utf-8', (err) => {
             if (err) {
                 logger.error('Dosyaya yazma hatası:', err);
             }

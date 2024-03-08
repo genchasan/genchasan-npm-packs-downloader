@@ -31,11 +31,19 @@ const listDepsCommand = {
                 demandOption : false,
                 choices: [ true, false ],
                 default : false
+            })
+            .option('maxLevel', {
+                alias: 'm',
+                describe: 'Alt bağımlılık basamak sayisi',
+                type: 'number',
+                demandOption : false,
+                default : 1
             });
     },
     handler: (argv) => {
         const name = argv.file;
         const deepCopy = argv.deepCopy;
+        const level = argv.maxLevel;
 
         // Dosyanın okunacağı dizini belirt
         try {
@@ -43,7 +51,7 @@ const listDepsCommand = {
 
             logger.info(`${fileToRead}! dosyası üzerindeki bağımlılıklar listelenecek...`);
 
-            findDependencies(fileToRead, deepCopy).then((result) => {
+            findDependencies(fileToRead, deepCopy, level).then((result) => {
                 logger.info(result);
             });
             //logger.info(deps);
@@ -78,18 +86,26 @@ const downloadPacksCommand = {
                 demandOption : false,
                 choices: [ true, false ],
                 default : false
+            })
+            .option('maxLevel', {
+                alias: 'm',
+                describe: 'Alt bağımlılık basamak sayisi',
+                type: 'number',
+                demandOption : false,
+                default : 1
             });
     },
     handler: (argv) => {
         const name = argv.file;
         const listFile = argv.listFile;
         const deepCopy = argv.deepCopy;
+        const level = argv.maxLevel;
 
         // Dosyanın okunacağı dizini belirt
         const fileToRead = isFullPath(name) ? path.parse(name) : path.join(currentWorkingDirectory, name);
 
         logger.info(`${fileToRead} dosyasındaki paketler ve bağımlılıkları indirilecek...`);
-        downloadPackageFiles(fileToRead, deepCopy, listFile).then(r => {
+        downloadPackageFiles(fileToRead, deepCopy, listFile, level).then(r => {
             logger.info("Paketler indirildi")
         });
     },
@@ -114,18 +130,26 @@ const generatePackListCommand = {
                 demandOption : false,
                 choices: [ true, false ],
                 default : false
+            })
+            .option('maxLevel', {
+                alias: 'm',
+                describe: 'Alt bağımlılık basamak sayisi',
+                type: 'number',
+                demandOption : false,
+                default : 1
             });
     },
     handler: (argv) => {
         const name = argv.file;
         const deepCopy = argv.deepCopy;
+        const level = argv.maxLevel;
 
         // Dosyanın okunacağı dizini belirt
         const fileToRead = isFullPath(name) ? path.parse(name) : path.join(currentWorkingDirectory, name);
 
         logger.info(`${fileToRead} dosyasındaki paketler ve bağımlılıkları dosyaya yazacak...`);
 
-        writePackDependencies(fileToRead, 'paket-listesi.txt', deepCopy);
+        writePackDependencies(fileToRead, 'paket-listesi.txt', deepCopy, level);
     },
 };
 
