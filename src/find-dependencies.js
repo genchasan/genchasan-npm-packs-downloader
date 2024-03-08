@@ -2,6 +2,7 @@
 const fs = require('fs');
 const { getPackageVersions, reduceVersions } = require('./paket-versions');
 const { getPaketList } = require('./paket-local-info');
+const { readPackageLockFile } = require('./package-lock-info');
 const { downloadFile } = require('./download-file');
 const { logger } = require('./logger');
 
@@ -126,6 +127,38 @@ async function writePackDependencies(packFile = 'package.json', fileName = 'pake
     }
 }
 
+async function downloadPackageFilesFromLockFile(fileName = 'package-lock.json') {
+    try {
+        if (!fs.existsSync(fileName)) throw new Error(fileName + ' dosyası bulunamadı.');
+
+        if (!fs.existsSync('./modules')) fs.mkdirSync('./modules');
+
+        const packs = readPackageLockFile(fileName);
+
+        for (const pack of packs) {
+            let dirname = extractDirName(pack.name);
+
+            let filename = 'modules/' + dirname;
+
+            if (!dirname.includes('./')) fs.mkdirSync(filename, {recursive: true});
+
+            filename = filename + '/' + getFileName(pack.url);
+            if (fs.existsSync(filename)) {
+                logger.info(filename + " dosyası zaten mevcut");
+            } else {
+                try {
+                    await downloadFile(pack.url, filename);
+                    logger.info(filename + " dosyası indirildi...")
+                } catch (e) {
+                    logger.error(e.message);
+                }
+            }
+        }
+    } catch (error) {
+        logger.error(error)
+        throw new Error(error);
+    }
+}
 
 async function testDownloadFile() {
     let url = "https://registry.npmjs.org/yup/-/yup-0.20.0.tgz";
@@ -142,9 +175,11 @@ async function testDownloadFile() {
 //writePackDependencies("../package.json");
 //findDependencies('../package.json');
 //downloadPackageFiles('aa', false, '../paket-listesi.txt');
+//loadDependencies("../package-lock.json");
 
 module.exports = {
     findDependencies,
     writePackDependencies,
-    downloadPackageFiles
+    downloadPackageFiles,
+    downloadPackageFilesFromLockFile
 }

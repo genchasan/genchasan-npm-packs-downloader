@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const yargs = require('yargs');
-const { downloadPackageFiles, writePackDependencies, findDependencies } = require('./find-dependencies');
+const { downloadPackageFiles, writePackDependencies, findDependencies, downloadPackageFilesFromLockFile } = require('./find-dependencies');
 const {logger} = require("./logger");
 const path = require('path');
 const fs = require('fs');
@@ -149,13 +149,42 @@ const generatePackListCommand = {
 
         logger.info(`${fileToRead} dosyasındaki paketler ve bağımlılıkları dosyaya yazacak...`);
 
-        writePackDependencies(fileToRead, 'paket-listesi.txt', deepCopy, level);
+        writePackDependencies(fileToRead, 'paket-listesi.txt', deepCopy, level).then(r => {
+            logger.info("Paket bağımlılıkları dosyaya yazildi");
+        });
+    },
+};
+
+const downloadPacksFromLockFileCommand = {
+    command: 'lock-file',
+    describe: 'Download packages with package-lock.json file.',
+    builder: (yargs) => {
+        return yargs.option('file', {
+            alias: 'f',
+            describe: 'Package-lock.json dosyası',
+            type: 'string',
+            demandOption: false,
+            default: 'package-lock.json'
+        });
+    },
+    handler: (argv) => {
+        const name = argv.file;
+
+        // Dosyanın okunacağı dizini belirt
+        const fileToRead = isFullPath(name) ? path.parse(name) : path.join(currentWorkingDirectory, name);
+
+        logger.info(`${fileToRead} dosyasındaki paketler ve bağımlılıkları dosyaya yazacak...`);
+
+        downloadPackageFilesFromLockFile(fileToRead).then(r => {
+            logger.info("Paketler indirildi");
+        });
     },
 };
 
 // Tanımlanan komutları yargs'e ekle
 yargs.command(listDepsCommand)
     .command(downloadPacksCommand)
+    .command(downloadPacksFromLockFileCommand)
     .command(generatePackListCommand);
 
 // Yargs konfigürasyonu,
