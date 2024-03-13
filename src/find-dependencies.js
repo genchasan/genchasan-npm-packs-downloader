@@ -14,7 +14,7 @@ function getFileName(url) {
     return pathname.substring(pathname.lastIndexOf('/') + 1);
 }
 
-async function findDependencies(fileName='package.json', deepTree = false, maxLevel = 2) {
+async function findDependencies(fileName='package.json', deepTree = false, maxLevel = 1) {
     try {
         if( !fs.existsSync(fileName)) throw new Error(fileName + ' dosyası bulunamadı.');
 
@@ -37,7 +37,7 @@ async function findDependencies(fileName='package.json', deepTree = false, maxLe
         });
 
         let vers = reduceVersions(allVersions);
-        let rules = ["next", "-test.", "-nightly-", "-candidate", "experimental", "-pre", "beta", "file:", "fetch", "rc", "canary", "git", "-alpha", "0.0.0-"];
+        let rules = ["-dev.", "next", "-test.", "-nightly-", "-candidate", "experimental", "-pre", "beta", "file:", "fetch", "rc", "canary", "git", "-alpha", "0.0.0-"];
         let filteredVers = vers.filter((value) => {
             if (value.url == undefined) return false;
             return !rules.some((r) => {
@@ -110,7 +110,7 @@ async function downloadPackageFiles(packFile = 'package.json', deepTree = false,
 }
 
 async function writePackDependencies(packFile = 'package.json', fileName = 'paket-listesi.txt',
-                                     deepTree = false, maxLevel = 2) {
+                                     deepTree = false, maxLevel = 1) {
     const packs = await findDependencies(packFile, deepTree, maxLevel);
 
     if (fs.existsSync(fileName)) {

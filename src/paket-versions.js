@@ -15,12 +15,12 @@ function reduceVersions(versions) {
     return ret;
 }
 
-async function getPackageVersions(packageName, packageVersion, deepTree = false, maxLevel = 2) {
+async function getPackageVersions(packageName, packageVersion, deepTree = false, maxLevel = 1) {
     try {
         let vers = [{ "name" : packageName, "version" : packageVersion, url : undefined, level: 0}];
 
-        let newVers = await getPackageVersionRecursive(packageName, deepTree, 0, maxLevel);
-        vers.push(...newVers);
+        /*let newVers = */await getPackageVersionRecursive(packageName, deepTree, 0, maxLevel, vers);
+        // vers.push(...newVers);
 /*
         const allPacks = await getPackagesInfo(packageName); //.then( ()=> { console.info(packageName + " okundu")});
 
@@ -54,9 +54,7 @@ async function getPackageVersions(packageName, packageVersion, deepTree = false,
     }
 }
 
-async function getPackageVersionRecursive(packageName, deepTree = false, level = 0, maxLevel = 2) {
-    let vers = [];
-
+async function getPackageVersionRecursive(packageName, deepTree = false, level = 0, maxLevel = 1, vers = []) {
     let lokalLevel = level + 1;
 
     const allPacks = await getPackagesInfo(packageName);
@@ -66,19 +64,19 @@ async function getPackageVersionRecursive(packageName, deepTree = false, level =
 
         if (lokalLevel > maxLevel) continue; // Daha derine inmeden sonrakine gec
 
-        if (deepTree && pack.dependencies != undefined)
+        if (deepTree && pack.dependencies !== undefined)
             for (const dep of Object.entries(pack.dependencies)) {
-                const newVersions = await getPackageVersionRecursive(dep[0], deepTree, lokalLevel, maxLevel);
-                vers.push(...newVersions);
+                await getPackageVersionRecursive(dep[0], deepTree, lokalLevel, maxLevel, vers);
             }
-        if (deepTree && pack.devDependencies != undefined)
+        if (deepTree && pack.devDependencies !== undefined)
             for (const dep of Object.entries(pack.devDependencies)) {
-                const newVersions = await getPackageVersionRecursive(dep[0], deepTree, lokalLevel, maxLevel);
-                vers.push(...newVersions);
+                await getPackageVersionRecursive(dep[0], deepTree, lokalLevel, maxLevel, vers);
+            }
+        if (deepTree && pack.peerDependencies !== undefined)
+            for (const dep of Object.entries(pack.peerDependencies)) {
+                await getPackageVersionRecursive(dep[0], deepTree, lokalLevel, maxLevel, vers);
             }
     }
-
-    return reduceVersions(vers);
 }
 
 module.exports = {
