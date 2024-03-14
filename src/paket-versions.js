@@ -1,3 +1,5 @@
+const cache = require("./cache");
+
 // getPackageVersions.js
 const getPackagesInfo = require('./paket-info');
 
@@ -21,6 +23,12 @@ async function getPackageVersions(packageName, packageVersion, deepTree = false,
 
         /*let newVers = */await getPackageVersionRecursive(packageName, deepTree, 0, maxLevel, vers);
         // vers.push(...newVers);
+
+        for ( const [ver, pack] of cache.entries()) {
+            for (const [v, p] of Object.values(pack)) {
+                vers.push({name: p.name, version: p.version, url: p.dist.tarball, level: 0});
+            }
+        }
 /*
         const allPacks = await getPackagesInfo(packageName); //.then( ()=> { console.info(packageName + " okundu")});
 
@@ -60,7 +68,7 @@ async function getPackageVersionRecursive(packageName, deepTree = false, level =
     const allPacks = await getPackagesInfo(packageName);
 
     for (const [ver, pack] of Object.values(allPacks)) {
-        vers.push({name: pack.name, version: pack.version, url: pack.dist.tarball, level: lokalLevel});
+        //vers.push({name: pack.name, version: pack.version, url: pack.dist.tarball, level: lokalLevel});
 
         if (lokalLevel > maxLevel) continue; // Daha derine inmeden sonrakine gec
 

@@ -77,7 +77,7 @@ function extractDirName(packName) {
 }
 
 async function downloadPackageFiles(packFile = 'package.json', deepTree = false,
-                                    listFile = undefined, maxLevel = 2) {
+                                    listFile = undefined, maxLevel = 1) {
     let packs;
 
     if (listFile === undefined) {
@@ -119,7 +119,7 @@ async function writePackDependencies(packFile = 'package.json', fileName = 'pake
     }
 
     for (const value of packs) {
-        fs.appendFile(fileName, value.name + ', ' + value.version + ', ' + value.url + ', ' +  value.level + '\n', 'utf-8', (err) => {
+        fs.appendFile(fileName, value.name + ', ' + value.version + ', ' + value.url + '\n', 'utf-8', (err) => {
             if (err) {
                 logger.error('Dosyaya yazma hatası:', err);
             }

@@ -29,6 +29,10 @@ class Cache {
     has(key) {
         return key in this.cache;
     }
+
+    entries() {
+        return Object.entries(this.cache);
+    }
 }
 
 const instance = new Cache();
