@@ -1,6 +1,6 @@
 {
   "name": "npm-packs-downloader",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A npm downloader with dependencies",
   "main": "src/index.js",
   "bin": {
@@ -25,6 +25,7 @@
   "license": "MIT",
   "dependencies": {
     "yargs": "^17.7.2",
-    "axios": "^1.6.2"
+    "axios": "^1.6.2",
+    "semver": "^7.6.0"
   }
 }

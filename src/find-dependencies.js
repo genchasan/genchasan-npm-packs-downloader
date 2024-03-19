@@ -133,7 +133,8 @@ async function downloadPackageFilesFromLockFile(fileName = 'package-lock.json') 
 
         if (!fs.existsSync('./modules')) fs.mkdirSync('./modules');
 
-        const packs = readPackageLockFile(fileName);
+        const resolvedPacks = await readPackageLockFile(fileName);
+        const packs = reduceVersions(resolvedPacks);
 
         for (const pack of packs) {
             let dirname = extractDirName(pack.name);
