@@ -59,7 +59,9 @@ function readPackFileList(listFile) {
 
     const satirlar = data.split('\n');
 
-    return Object.values(satirlar).map(e => {
+    return Object.values(satirlar)
+        .filter(s => s.trim().length > 0 && s.split(',').length >= 3)
+        .map(e => {
         const paket = e.split(',');
         if (paket.length === 3)
             return {name: paket[0].trim(), version: paket[1].trim(), url: paket[2].trim()};
