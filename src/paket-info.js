@@ -15,23 +15,26 @@ async function getPackagesInfo(packageName) {
         }
 
         const response = await axios.get(`https://registry.npmjs.org/${packageName}`);
-        const packageInfo = response.data;
+        if (response.status === 200) {
+            const packageInfo = response.data;
 
-        // Paketin tüm versiyonlarına erişim
-        const allVersions = Object.entries(packageInfo.versions);
+            // Paketin tüm versiyonlarına erişim
+            const allVersions = Object.entries(packageInfo.versions);
 
-        cache.set(packageName, allVersions);
+            cache.set(packageName, allVersions);
 
-        // En son versiyonu seç (veya başka bir mantıkla)
-        // const latestVersion = allVersions[allVersions.length - 1];
+            // En son versiyonu seç (veya başka bir mantıkla)
+            // const latestVersion = allVersions[allVersions.length - 1];
 
-        //console.log(`Package Info for ${packageName}@${latestVersion}:`, packageInfo.versions[latestVersion]);
-        //return packageInfo.versions[latestVersion];
-        return allVersions;
+            //console.log(`Package Info for ${packageName}@${latestVersion}:`, packageInfo.versions[latestVersion]);
+            //return packageInfo.versions[latestVersion];
+            return allVersions;
+        }
+        logger.error(`Paket bilgileri alınamadı (${packageName}):`);
     } catch (error) {
         logger.error(`Paket bilgileri alınamadı (${packageName}):`, error.message);
-        return [];
     }
+    return [];
 }
 
 module.exports = getPackagesInfo;

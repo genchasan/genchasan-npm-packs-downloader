@@ -53,7 +53,7 @@ const listDepsCommand = {
 
             findDependencies(fileToRead, deepCopy, level).then((result) => {
                 logger.info(result);
-            });
+            }).then(()=>{ console.log("Listeleme bitti...")});
             //logger.info(deps);
         } catch (e) {
             logger.error('HATA : ' + e.message);
