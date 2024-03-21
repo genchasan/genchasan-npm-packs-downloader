@@ -23,11 +23,6 @@ async function getPackagesInfo(packageName) {
 
             cache.set(packageName, allVersions);
 
-            // En son versiyonu seç (veya başka bir mantıkla)
-            // const latestVersion = allVersions[allVersions.length - 1];
-
-            //console.log(`Package Info for ${packageName}@${latestVersion}:`, packageInfo.versions[latestVersion]);
-            //return packageInfo.versions[latestVersion];
             return allVersions;
         }
         logger.error(`Paket bilgileri alınamadı (${packageName}):`);
