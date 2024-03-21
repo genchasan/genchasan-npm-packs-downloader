@@ -38,8 +38,8 @@ function parseMultiplePackageStrings(packageStrings) {
     const packages = packageStrings.split(' ');
     return packages.map(packageString => {
         const atIndex = packageString.lastIndexOf('@');
-        const name = packageString.substring(0, atIndex);
-        const version = packageString.substring(atIndex + 1);
+        const name = atIndex === -1 ? packageString : packageString.substring(0, atIndex);
+        const version = atIndex === -1 ? undefined : packageString.substring(atIndex + 1);
         return { name, version };
     });
 }

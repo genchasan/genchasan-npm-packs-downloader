@@ -18,18 +18,20 @@ async function getPackagesInfo(packageName) {
         if (response.status === 200) {
             const packageInfo = response.data;
 
+            let latestVersion = packageInfo['dist-tags'].latest;
+
             // Paketin tüm versiyonlarına erişim
             const allVersions = Object.entries(packageInfo.versions);
 
-            cache.set(packageName, allVersions);
+            cache.set(packageName, { latestVersion, allVersions });
 
-            return allVersions;
+            return { latestVersion, allVersions };
         }
         logger.error(`Paket bilgileri alınamadı (${packageName}):`);
     } catch (error) {
         logger.error(`Paket bilgileri alınamadı (${packageName}):`, error.message);
     }
-    return [];
+    return { undefined, undefined };
 }
 
 module.exports = getPackagesInfo;

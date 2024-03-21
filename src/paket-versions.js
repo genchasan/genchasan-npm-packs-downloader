@@ -3,6 +3,7 @@ const cache = require("./cache");
 // getPackageVersions.js
 const getPackagesInfo = require('./paket-info');
 const semver = require("semver");
+const {logger} = require("./logger");
 
 function arePacketsEqual(obj1, obj2) {
     return obj1.name === obj2.name && obj1.version === obj2.version;
@@ -34,13 +35,33 @@ async function getPackageVersions(packageName, packageVersion, deepTree = false,
 async function getPackageVersionRecursive(packageName, packageVersion, deepTree = false, level = 0, maxLevel = 1, vers = []) {
     let lokalLevel = level + 1;
 
-    let allPacks = await getPackagesInfo(`${packageName}`);
+    let {latestVersion, allVersions} = await getPackagesInfo(`${packageName}`);
 
-    const uygunVersiyon = semver.maxSatisfying(Object.entries(allPacks).map(p => p[1][0]), packageVersion);
+    if (packageVersion === undefined) {
+        packageVersion = latestVersion;
+    }
+    const uygunVersiyon = semver.maxSatisfying(Object.entries(allVersions).map(p => p[1][0]), packageVersion);
     let uygunPack = undefined
     if (uygunVersiyon) {
-        uygunPack = Object.entries(allPacks).find(p => p[1][0] === uygunVersiyon)[1][1];
+        uygunPack = Object.entries(allVersions).find(p => p[1][0] === uygunVersiyon)[1][1];
         vers.push({name: uygunPack.name, version: uygunPack.version, url: uygunPack.dist.tarball, level: lokalLevel});
+        try {
+            let cleanVersion = semver.minVersion(packageVersion).version;
+            if (cleanVersion !== uygunVersiyon) {
+                let cleanVerPack = Object.entries(allVersions)
+                                    .find(p => p[1][0] === cleanVersion);
+                if (cleanVerPack) {
+                    vers.push({
+                        name: cleanVerPack[1][1].name,
+                        version: cleanVersion,
+                        url: cleanVerPack[1][1].dist.tarball,
+                        level: lokalLevel
+                    });
+                }
+            }
+        } catch (e) {
+            logger.error(e)
+        }
     } else return;
 
     if (lokalLevel > maxLevel) return; // Daha derine inmeden sonrakine gec

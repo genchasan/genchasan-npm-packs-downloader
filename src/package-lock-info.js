@@ -26,17 +26,17 @@ async function readPackageLockFile(packageFileName = "package-lock.json") {
         )) {
             let deps = val[1].dependencies || {};
             let deps2 = val[1].peerDependencies || {};
-            for (const v of [...Object.entries(deps), ...Object.entries(deps2)]) {
+            for (const [ pName, pVersion ] of [...Object.entries(deps), ...Object.entries(deps2)]) {
                 try {
-                    let packInfo = await getPackagesInfo(v[0]);
+                    let { allVersions } = await getPackagesInfo(pName);
 
-                    const uygunVersiyon = semver.maxSatisfying(Object.entries(packInfo).map(p => p[1][0]), v[1]);
+                    const uygunVersiyon = semver.maxSatisfying(Object.entries(allVersions).map(p => p[1][0]), pVersion);
 
                     if (!uygunVersiyon) {
                         console.error(`Belirtilen versiyon gereksinimini karşılayan bir versiyon bulunamadı: ${v[1]}`);
                     } else {
                         //console.log(`İndirilecek paket versiyonu: ${paketAdi}@${uygunVersiyon}`);
-                        let uygunPack = Object.entries(packInfo).find(p => p[1][0] === uygunVersiyon)[1][1];
+                        let uygunPack = Object.entries(allVersions).find(p => p[1][0] === uygunVersiyon)[1][1];
                         findings.push({ name: trimPrefix(uygunPack.name, 'node_modules/'), version: uygunPack.version, url: uygunPack.dist.tarball });
                     }
                 } catch (e) {
