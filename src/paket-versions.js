@@ -40,6 +40,8 @@ async function getPackageVersionRecursive(packageName, packageVersion, deepTree 
     if (packageVersion === undefined) {
         packageVersion = latestVersion;
     }
+    if (allVersions === undefined) return;
+
     const uygunVersiyon = semver.maxSatisfying(Object.entries(allVersions).map(p => p[1][0]), packageVersion);
     let uygunPack = undefined
     if (uygunVersiyon) {
