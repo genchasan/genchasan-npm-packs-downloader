@@ -1,8 +1,12 @@
 {
   "name": "npm-packs-downloader",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "A npm downloader with dependencies",
   "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/genchasan/npm-packs-downloader.git"
+  },
   "bin": {
     "npm-packs-download" : "src/index.js",
     "publish-nexus" : "src/publish-nexus-registry.sh"
