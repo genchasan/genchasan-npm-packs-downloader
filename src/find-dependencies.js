@@ -24,14 +24,12 @@ function filterVersions(allVersions = []) {
 
     let vers = reduceVersions(allVersions);
     let rules = ["-dev.", "next", "-test.", "-nightly-", "-candidate", "experimental", "-pre", "beta", "file:", "fetch", "rc", "canary", "git", "-alpha", "0.0.0-"];
-    let filteredVers = vers.filter((value) => {
-        if (value.url == undefined) return false;
+    return vers.filter((value) => {
+        if (value.url === undefined) return false;
         return !rules.some((r) => {
             return value.version.includes(r);
         });
     });
-
-    return filteredVers;
 }
 
 function parseMultiplePackageStrings(packageStrings) {
@@ -59,8 +57,8 @@ async function findDependenciesByPackages(packages='-pack-name-@0.0.0', deepTree
 }
 
 async function findDependencies(fileName='package.json', deepTree = false, maxLevel = 1) {
+    if( !fs.existsSync(fileName)) throw new Error(fileName + ' dosyası bulunamadı.');
     try {
-        if( !fs.existsSync(fileName)) throw new Error(fileName + ' dosyası bulunamadı.');
 
         const paketler = getPaketList(fs.realpathSync(fileName));
 
@@ -105,7 +103,7 @@ function extractDirName(packName) {
     return './';
 }
 
-function downloadPacks(packs = []) {
+async function downloadPacks(packs = []) {
     for (const value of packs) {
         let dirname = extractDirName(value.name);
 
@@ -118,21 +116,21 @@ function downloadPacks(packs = []) {
             logger.info(filename + " dosyası zaten mevcut");
         } else {
             try {
-                downloadFile(value.url, filename).then(() => {
-                    logger.info(filename + " dosyası indirildi...")
-                });
+                await downloadFile(value.url, filename);
+                logger.info(filename + " dosyası indirildi...")
             } catch (e) {
                 logger.error(e.message);
             }
         }
     }
 }
+
 async function downloadPackageFilesByPackages(packages='-pack-name-@0.0.0', deepTree = false,
                                               maxLevel = 1) {
     if (!fs.existsSync('./modules')) fs.mkdirSync('./modules');
 
     findDependenciesByPackages(packages, deepTree, maxLevel).then(async (packs) => {
-        downloadPacks(packs);
+        await downloadPacks(packs);
     }).catch((error) => {
         logger.error(error);
         throw new Error(error);
@@ -144,7 +142,7 @@ async function downloadPackageFilesByFile(listFile = 'paket-listesi.txt') {
 
     if (!fs.existsSync('./modules')) fs.mkdirSync('./modules');
 
-    downloadPacks(packs);
+    await downloadPacks(packs);
 }
 
 async function downloadPackageFiles(packFile = 'package.json', deepTree = false,
@@ -153,7 +151,7 @@ async function downloadPackageFiles(packFile = 'package.json', deepTree = false,
 
     if (!fs.existsSync('./modules')) fs.mkdirSync('./modules');
 
-    downloadPacks(packs);
+    await downloadPacks(packs);
 }
 
 function writePacksToFile(packs, fileName) {
@@ -185,15 +183,20 @@ async function writePackDependenciesByPackages(packages='-pack-name-@0.0.0', fil
 }
 
 async function downloadPackageFilesFromLockFile(fileName = 'package-lock.json') {
+    if (!fs.existsSync(fileName)) throw new Error(fileName + ' dosyası bulunamadı.');
     try {
-        if (!fs.existsSync(fileName)) throw new Error(fileName + ' dosyası bulunamadı.');
-
         if (!fs.existsSync('./modules')) fs.mkdirSync('./modules');
 
         const resolvedPacks = await readPackageLockFile(fileName);
         const packs = reduceVersions(resolvedPacks);
 
-        downloadPacks(packs);
+        downloadPacks(packs)
+            .then(() => {
+                logger.info("Paketler indirildi");
+            })
+            .catch((error) => {
+                logger.error(error);
+            });
     } catch (error) {
         logger.error(error)
         throw new Error(error);
