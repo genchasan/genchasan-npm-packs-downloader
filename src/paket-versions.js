@@ -1,5 +1,3 @@
-const cache = require("./cache");
-
 // getPackageVersions.js
 const getPackagesInfo = require('./paket-info');
 const semver = require("semver");
@@ -27,7 +25,7 @@ async function getPackageVersions(packageName, packageVersion, deepTree = false,
 
         return reduceVersions(vers);
     } catch (error) {
-        console.error(`Paket bilgileri alınamadı (${packageName}@${packageVersion}):`, error.message);
+        logger.error(`Paket bilgileri alınamadı (${packageName}@${packageVersion}):`, error.message);
         throw error;
     }
 }
@@ -42,44 +40,26 @@ async function getPackageVersionRecursive(packageName, packageVersion, deepTree 
     }
     if (allVersions === undefined) return;
 
-    const uygunVersiyon = semver.maxSatisfying(Object.entries(allVersions).map(p => p[1][0]), packageVersion);
-    let uygunPack = undefined
-    if (uygunVersiyon) {
-        uygunPack = Object.entries(allVersions).find(p => p[1][0] === uygunVersiyon)[1][1];
+    let entries = [...Object.values(allVersions).filter(p => semver.satisfies(p[0], packageVersion)).entries()];
+
+    for( let [ ,[ , uygunPack] ] of entries) {
         vers.push({name: uygunPack.name, version: uygunPack.version, url: uygunPack.dist.tarball, level: lokalLevel});
-        try {
-            let cleanVersion = semver.minVersion(packageVersion).version;
-            if (cleanVersion !== uygunVersiyon) {
-                let cleanVerPack = Object.entries(allVersions)
-                                    .find(p => p[1][0] === cleanVersion);
-                if (cleanVerPack) {
-                    vers.push({
-                        name: cleanVerPack[1][1].name,
-                        version: cleanVersion,
-                        url: cleanVerPack[1][1].dist.tarball,
-                        level: lokalLevel
-                    });
-                }
-            }
-        } catch (e) {
-            logger.error(e)
+
+        if (lokalLevel > maxLevel) return; // Daha derine inmeden sonrakine gec
+
+        const dependencies = uygunPack.dependencies || {};
+        const devDependencies = uygunPack.devDependencies || {};
+        const peerDependencies = uygunPack.peerDependencies || {};
+
+        const altDeps = [...Object.entries(dependencies),
+            ...Object.entries(devDependencies), ...Object.entries(peerDependencies)]
+            .map(function (val) {
+                return {name: val[0], version: val[1]};
+            });
+
+        for (const {name, version} of Object.values(altDeps)) {
+            await getPackageVersionRecursive(name, version, deepTree, lokalLevel, maxLevel, vers);
         }
-    } else return;
-
-    if (lokalLevel > maxLevel) return; // Daha derine inmeden sonrakine gec
-
-    const dependencies = uygunPack.dependencies || {};
-    const devDependencies = uygunPack.devDependencies || {};
-    const peerDependencies = uygunPack.peerDependencies || {};
-
-    const altDeps = [...Object.entries(dependencies),
-        ...Object.entries(devDependencies), ...Object.entries(peerDependencies)]
-        .map(function (val) {
-        return { name: val[0], version: val[1] };
-    });
-
-    for (const { name, version }  of Object.values(altDeps)) {
-        await getPackageVersionRecursive(name, version, deepTree, lokalLevel, maxLevel, vers);
     }
 }
 
