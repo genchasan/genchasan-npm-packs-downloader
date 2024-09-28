@@ -57,7 +57,8 @@ const listDepsCommand = {
 
         // Dosyanın okunacağı dizini belirt
         try {
-            const fileToRead = isFullPath(name) ? path.parse(name) : path.join(currentWorkingDirectory, name);
+            const filePath = path.parse(name);
+            const fileToRead = isFullPath(name) ? path.join(filePath.dir, filePath.base) : path.join(currentWorkingDirectory, name);
 
             if (packages) {
                 logger.info(`${packages}! paketleri üzerindeki bağımlılıklar listelenecek...`);
@@ -78,7 +79,6 @@ const listDepsCommand = {
     },
 };
 
-// "goodbye" komutunu tanımla
 const downloadPacksCommand = {
     command: 'download',
     describe: 'Download packages and its dependencies',
@@ -115,6 +115,13 @@ const downloadPacksCommand = {
                 type: 'number',
                 demandOption : false,
                 default : 1
+            })
+            .option('excludes', {
+                alias: 'e',
+                describe: 'Hariç tutulacak paket listesi (test asamasında)',
+                type: 'string',
+                demandOption : false,
+                default : ""
             });
     },
     handler: (argv) => {
@@ -123,13 +130,15 @@ const downloadPacksCommand = {
         const deepCopy = argv.deepCopy;
         const level = argv.maxLevel;
         const packages = argv.packages;
+        const excludes =  argv.excludes.split(' ');
 
         // Dosyanın okunacağı dizini belirt
-        const fileToRead = isFullPath(name) ? path.parse(name) : path.join(currentWorkingDirectory, name);
+        const filePath = path.parse(name)
+        const fileToRead = isFullPath(name) ? path.join(filePath.dir, filePath.base) : path.join(currentWorkingDirectory, name);
 
         if (packages) {
             logger.info(`${packages} paketleri ve bağımlılıkları indirilecek...`);
-            downloadPackageFilesByPackages(packages, deepCopy, level).then(r => {
+            downloadPackageFilesByPackages(packages, deepCopy, level, excludes).then(r => {
                 logger.info("Paketler indirildi")
             });
         } else if(listFile) {
@@ -193,7 +202,8 @@ const generatePackListCommand = {
             });
         } else {
             // Dosyanın okunacağı dizini belirt
-            const fileToRead = isFullPath(name) ? path.parse(name) : path.join(currentWorkingDirectory, name);
+            const filePath =path.parse(name);
+            const fileToRead = isFullPath(name) ? path.join(filePath.dir, filePath.base) : path.join(currentWorkingDirectory, name);
 
             logger.info(`${fileToRead} dosyasındaki paketler ve bağımlılıkları dosyaya yazacak...`);
 
@@ -221,7 +231,8 @@ const downloadPacksFromLockFileCommand = {
         const name = argv.file;
 
         // Dosyanın okunacağı dizini belirt
-        const fileToRead = isFullPath(name) ? path.parse(name) : path.join(currentWorkingDirectory, name);
+        const filePath = path.parse(name);
+        const fileToRead = isFullPath(name) ? path.join(filePath.dir, filePath.base) : path.join(currentWorkingDirectory, name);
 
         logger.info(`${fileToRead} dosyasındaki paketler ve bağımlılıkları dosyaya yazacak...`);
 

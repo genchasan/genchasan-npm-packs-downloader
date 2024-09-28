@@ -1,6 +1,6 @@
 {
   "name": "npm-packs-downloader",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "description": "A npm downloader with dependencies",
   "main": "src/index.js",
   "repository": {

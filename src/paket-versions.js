@@ -17,11 +17,11 @@ function reduceVersions(versions) {
     return ret;
 }
 
-async function getPackageVersions(packageName, packageVersion, deepTree = false, maxLevel = 1) {
+async function getPackageVersions(packageName, packageVersion, deepTree = false, maxLevel = 1, excludes = []) {
     try {
         let vers = [];
 
-        await getPackageVersionRecursive(packageName, packageVersion, deepTree, 0, maxLevel, vers);
+        await getPackageVersionRecursive(packageName, packageVersion, deepTree, 0, maxLevel, vers, excludes);
 
         return reduceVersions(vers);
     } catch (error) {
@@ -30,7 +30,8 @@ async function getPackageVersions(packageName, packageVersion, deepTree = false,
     }
 }
 
-async function getPackageVersionRecursive(packageName, packageVersion, deepTree = false, level = 0, maxLevel = 1, vers = []) {
+async function getPackageVersionRecursive(packageName, packageVersion, deepTree = false, level = 0,
+                                          maxLevel = 1, vers = [], excludes = []) {
     let lokalLevel = level + 1;
 
     let {latestVersion, allVersions} = await getPackagesInfo(`${packageName}`);
@@ -53,12 +54,14 @@ async function getPackageVersionRecursive(packageName, packageVersion, deepTree 
 
         const altDeps = [...Object.entries(dependencies),
             ...Object.entries(devDependencies), ...Object.entries(peerDependencies)]
-            .map(function (val) {
+            .filter((val) => {
+                return !excludes.includes(val[0])
+            }).map(function (val) {
                 return {name: val[0], version: val[1]};
             });
 
         for (const {name, version} of Object.values(altDeps)) {
-            await getPackageVersionRecursive(name, version, deepTree, lokalLevel, maxLevel, vers);
+            await getPackageVersionRecursive(name, version, deepTree, lokalLevel, maxLevel, vers, excludes);
         }
     }
 }

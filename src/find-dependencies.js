@@ -42,11 +42,12 @@ function parseMultiplePackageStrings(packageStrings) {
     });
 }
 
-async function findDependenciesByPackages(packages='-pack-name-@0.0.0', deepTree = false, maxLevel = 1) {
+async function findDependenciesByPackages(packages='-pack-name-@0.0.0', deepTree = false,
+                                          maxLevel = 1, excludes = []) {
     let packageStrings = parseMultiplePackageStrings(packages);
     let allVersions = [];
     for (const packageString of packageStrings) {
-        const versions = await getPackageVersions(packageString.name, packageString.version, deepTree, maxLevel);
+        const versions = await getPackageVersions(packageString.name, packageString.version, deepTree, maxLevel, excludes);
 
         versions.forEach(function (value) {
             allVersions.push(value);
@@ -126,10 +127,10 @@ async function downloadPacks(packs = []) {
 }
 
 async function downloadPackageFilesByPackages(packages='-pack-name-@0.0.0', deepTree = false,
-                                              maxLevel = 1) {
+                                              maxLevel = 1, excludes = []) {
     if (!fs.existsSync('./modules')) fs.mkdirSync('./modules');
 
-    findDependenciesByPackages(packages, deepTree, maxLevel).then(async (packs) => {
+    findDependenciesByPackages(packages, deepTree, maxLevel, excludes).then(async (packs) => {
         await downloadPacks(packs);
     }).catch((error) => {
         logger.error(error);
@@ -176,7 +177,8 @@ async function writePackDependencies(packFile = 'package.json', fileName = 'pake
     writePacksToFile(packs, fileName);
 }
 
-async function writePackDependenciesByPackages(packages='-pack-name-@0.0.0', fileName = 'paket-listesi.txt', deepTree = false, maxLevel = 1) {
+async function writePackDependenciesByPackages(packages='-pack-name-@0.0.0', fileName = 'paket-listesi.txt',
+                                               deepTree = false, maxLevel = 1) {
     const packs = await findDependenciesByPackages(packages, deepTree, maxLevel);
 
     writePacksToFile(packs, fileName);
