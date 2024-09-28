@@ -30,7 +30,7 @@ async function readPackageLockFile(packageFileName = "package-lock.json") {
                 try {
                     let { allVersions } = await getPackagesInfo(pName);
 
-                    const uygunVersiyon = semver.maxSatisfying(Object.entries(allVersions).map(p => p[1][0]), pVersion);
+                    const uygunVersiyon = semver.minSatisfying(Object.entries(allVersions).map(p => p[1][0]), pVersion);
 
                     if (!uygunVersiyon) {
                         console.error(`Belirtilen versiyon gereksinimini karşılayan bir versiyon bulunamadı: ${pVersion}`);
